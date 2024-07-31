@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fundo com Efeito</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+            width: 100%;
+            background: url('https://cdn.pixabay.com/animation/2022/11/16/14/56/14-56-49-778_512.gif') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        #clock {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ffffff;
+            font-size: 36px;
+            font-family: Arial, sans-serif;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.8;
+            mix-blend-mode: screen;
+        }
+    </style>
+</head>
+<body>
+    <div id="clock"></div>
+    <canvas id="canvas"></canvas>
+    <script>
+        // Função para atualizar o relógio
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('clock').innerText = `${hours}:${minutes}:${seconds}`;
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock(); // Atualiza o relógio imediatamente
+
+        // Configuração do canvas para a fumaça cósmica
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const numParticles = 50;
+
+        // Cria partículas
+        function createParticles(x, y) {
+            for (let i = 0; i < numParticles; i++) {
+                particles.push({
+                    x,
+                    y,
+                    size: Math.random() * 5 + 2,
+                    speedX: (Math.random() - 0.5) * 2,
+                    speedY: (Math.random() - 0.5) * 2,
+                    color: `hsl(${Math.random() * 360}, 100%, 75%)`
+                });
+            }
+        }
+
+        // Atualiza as partículas
+        function updateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach((particle, index) => {
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                ctx.fillStyle = particle.color;
+                ctx.fill();
+
+                particle.x += particle.speedX;
+                particle.y += particle.speedY;
+                particle.size *= 0.95; // Diminuir o tamanho ao longo do tempo
+
+                // Remove partículas pequenas
+                if (particle.size < 0.5) {
+                    particles.splice(index, 1);
+                }
+            });
+        }
+
+        // Atualiza as partículas a cada frame
+        function animate() {
+            updateParticles();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // Adiciona partículas onde o mouse passa
+        function onMouseMove(event) {
+            createParticles(event.clientX, event.clientY);
+        }
+
+        document.addEventListener('mousemove', onMouseMove);
+
+        // Atualiza o tamanho do canvas quando a janela é redimensionada
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
